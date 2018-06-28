@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mmtech.icecloud.manager.server.sys.dao.SysUserMapper">
+
+    <resultMap id="sysUserResultMap" type="com.mmtech.icecloud.manager.server.sys.entity.SysUser">
+        <id column="id_" jdbcType="BIGINT" property="id"/>
+        <result column="username_" jdbcType="VARCHAR" property="username"/>
+        <result column="password_" jdbcType="CHAR" property="password"/>
+        <result column="realname_" jdbcType="VARCHAR" property="realname"/>
+        <result column="status_" jdbcType="INTEGER" property="status" />
+        <result column="created_time_" jdbcType="TIMESTAMP" property="createdTime"/>
+        <result column="updated_time_" jdbcType="TIME" property="updatedTime"/>
+        <collection property="roleList" resultMap="sysRoleResultMap"/>
+        <collection property="permissionList" resultMap="sysPermissionResultMap"/>
+    </resultMap>
+
+    <resultMap id="sysRoleResultMap" type="com.mmtech.icecloud.manager.server.sys.entity.SysRole">
+        <id column="role_id_" jdbcType="BIGINT" property="id"/>
+        <result column="role_name_" jdbcType="VARCHAR" property="name"/>
+        <result column="role_desc_" jdbcType="VARCHAR" property="desc"/>
+    </resultMap>
+
+
+    <resultMap id="sysPermissionResultMap" type="com.mmtech.icecloud.manager.server.sys.entity.SysPermission">
+        <id column="p_id_" jdbcType="BIGINT" property="id"/>
+        <result column="p_name_" jdbcType="VARCHAR" property="name"/>
+        <result column="p_type_" jdbcType="VARCHAR" property="type"/>
+        <result column="p_path_" jdbcType="VARCHAR" property="path"/>
+        <result column="p_parent_id_" jdbcType="BIGINT" property="parentId"/>
+        <result column="p_permission_" jdbcType="VARCHAR" property="permission"/>
+    </resultMap>
+
+
+    <select id="selectSysUserByUsername" resultMap="sysUserResultMap">
+      select su.id_ as id_, su.username_ as username_, su.realname_ as realname_, su.password_ as password_, su.status_ as status_,
+      sr.id_ as role_id_, sr.name_ as role_name_, sr.desc_ as role_desc_,
+      sp.id_ as p_id_, sp.name_ as p_name_, sp.type_ as p_type_, sp.path_ p_path_, sp.permission_ p_permission_, sp.parent_id_ p_parent_id_
+      from sys_user su left join
+      sys_user_role sur on su.id_= sur.user_id_
+      left join sys_role sr on sur.role_id_ = sr.id_
+      left join sys_role_permission srp on srp.role_id_ = sr.id_
+      left join sys_permission sp on sp.id_ = srp.permission_id_
+      where sur.status_ = 1 and srp.status_ = 1 and sr.status_ = 1 and su.username_ = #{username}
+    </select>
+
+
+</mapper>
